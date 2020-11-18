@@ -10,7 +10,7 @@ class ImportTransactionsService {
     const csvContent = await fs.promises.readFile(csvFilePath, {
       encoding: 'utf-8',
     });
-    const transactions = csvContent.split('\r\n');
+    const transactions = csvContent.split('\n');
     transactions.splice(0, 1);
     const createTransactionService = new CreateTransactionService();
     let createdTransactions: Transaction[] = [];
