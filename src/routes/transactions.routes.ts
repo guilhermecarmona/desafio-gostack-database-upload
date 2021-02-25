@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import { getCustomRepository } from 'typeorm';
-import { classToClass } from 'class-transformer';
 import multer from 'multer';
 import uploadConfig from '../config/upload';
 const upload = multer(uploadConfig);
@@ -16,7 +15,7 @@ transactionsRouter.get('/', async (request, response) => {
   const transactionsRepository = getCustomRepository(TransactionsRepository);
   const transactions = await transactionsRepository.find();
   const balance = await transactionsRepository.getBalance();
-  return response.json({ transactions: classToClass(transactions), balance });
+  return response.json({ transactions, balance });
 });
 
 transactionsRouter.post('/', async (request, response) => {
@@ -39,11 +38,12 @@ transactionsRouter.delete('/:id', async (request, response) => {
 
 transactionsRouter.post(
   '/import',
-  upload.single('file'),
+  upload.array('files'),
   async (request, response) => {
     const importTransactionsService = new ImportTransactionsService();
+    const files = request.files as Express.Multer.File[];
     const transactions = await importTransactionsService.execute(
-      request.file.filename,
+      files.map(file => file.filename),
     );
     return response.json(transactions);
   },
